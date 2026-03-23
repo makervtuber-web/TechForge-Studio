@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cyber-Forge 2077: Core Protocol 2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+      body {
+        margin: 0;
+        background-color: #000000;
+        color: #e0e0e0;
+        font-family: 'JetBrains Mono', monospace;
+        overflow-x: hidden;
+      }
+      h1, h2, h3, .font-tech {
+        font-family: 'Orbitron', sans-serif;
+      }
+      .scanlines {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          rgba(18, 16, 16, 0) 50%,
+          rgba(0, 0, 0, 0.1) 50%
+        ),
+        linear-gradient(
+          90deg,
+          rgba(255, 0, 0, 0.02),
+          rgba(0, 255, 0, 0.01),
+          rgba(0, 0, 255, 0.02)
+        );
+        background-size: 100% 4px, 3px 100%;
+        pointer-events: none;
+        z-index: 50;
+      }
+      .glow-blue { box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); border-color: #00f3ff; }
+      .glow-pink { box-shadow: 0 0 15px rgba(255, 0, 60, 0.4); border-color: #ff003c; }
+      .glow-green { box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); border-color: #39ff14; }
+      
+      @keyframes glitch {
+        0% { transform: translate(0) }
+        20% { transform: translate(-2px, 2px) }
+        40% { transform: translate(-2px, -2px) }
+        60% { transform: translate(2px, 2px) }
+        80% { transform: translate(2px, -2px) }
+        100% { transform: translate(0) }
+      }
+      .glitch-hover:hover {
+        animation: glitch 0.2s infinite;
+      }
+
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #000;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #00f3ff;
+        border-radius: 2px;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "framer-motion": "https://esm.sh/framer-motion@^12.27.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

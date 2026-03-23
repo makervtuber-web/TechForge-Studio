@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div align="center">
 <h1>TechForge Studio</h1>
 <h3>專業服務網站展示平台 - Professional Services Showcase</h3>
@@ -99,3 +100,7 @@ MIT License
 <div align="center">
 <p>🚀 用技術重新定義專業服務的未來</p>
 </div>
+=======
+# TechForge-Studio
+123
+>>>>>>> 0c8430187a662f02b2a23a4aa8b835640fb6ff82

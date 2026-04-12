@@ -1,16 +1,34 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { UI_TEXT } from '../translations.ts';
+import DemoGallery from './DemoGallery.tsx';
 
 interface MedicalShowcaseProps {
   lang: 'en' | 'zh';
 }
 
 const MedicalShowcase: React.FC<MedicalShowcaseProps> = ({ lang }) => {
-  const [showDemo, setShowDemo] = useState(false);
+  // Demo gallery state - 預設顯示 Demo，支援未來多個 Demo 切換
+  const [showDemoGallery, setShowDemoGallery] = useState(false);
+  const [currentDemoId, setCurrentDemoId] = useState('healthcare-default');
+  const [currentDemoName, setCurrentDemoName] = useState(lang === 'zh' ? '智慧醫療' : 'Smart Medical');
+  
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const t = UI_TEXT[lang];
+
+  // Handle demo selection
+  const handleDemoSelect = (demoId: string) => {
+    setCurrentDemoId(demoId);
+    setShowDemoGallery(false);
+    // Demo name mapping for future multi-demo support
+    const demoNames: { [key: string]: string } = {
+      'healthcare-default': lang === 'zh' ? '智慧醫療' : 'Smart Medical',
+      'healthcare-dental': lang === 'zh' ? '牙醫診所' : 'Dental Clinic',
+      'healthcare-physio': lang === 'zh' ? '物理治療' : 'Physiotherapy'
+    };
+    setCurrentDemoName(demoNames[demoId] || demoNames['healthcare-default']);
+  };
 
   const features = [
     {
@@ -85,54 +103,57 @@ const MedicalShowcase: React.FC<MedicalShowcaseProps> = ({ lang }) => {
           viewport={{ once: true }}
           className="mb-16"
         >
-          <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-300 shadow-2xl">
-            <div className="bg-gray-100 px-4 py-3 flex items-center justify-between">
+          {/* Demo Gallery - 選擇面板 */}
+          <AnimatePresence>
+            {showDemoGallery && (
+              <DemoGallery
+                industryId="healthcare"
+                industryName={lang === 'zh' ? '智慧醫療' : 'Smart Medical'}
+                lang={lang}
+                onDemoSelect={handleDemoSelect}
+                currentDemoId={currentDemoId}
+                isOpen={showDemoGallery}
+                onClose={() => setShowDemoGallery(false)}
+              />
+            )}
+          </AnimatePresence>
+
+          <div className="relative bg-white rounded-2xl overflow-hidden border border-teal-200 shadow-2xl">
+            {/* Demo Header Bar */}
+            <div className="bg-gradient-to-r from-blue-100 to-teal-100 px-4 py-3 flex items-center justify-between border-b border-teal-200">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full" />
                 <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                 <div className="w-3 h-3 bg-green-500 rounded-full" />
               </div>
-              <span className="text-gray-600 text-sm font-mono">smart-medical.demo</span>
+              <div className="flex items-center gap-2">
+                <span className="text-teal-600 text-sm font-mono">smart-medical.demo</span>
+                <span className="text-xs text-teal-400">|</span>
+                <span className="text-xs text-teal-600 font-medium">{currentDemoName}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {/* 選擇案例按鈕 */}
+                <button
+                  onClick={() => setShowDemoGallery(true)}
+                  className="px-3 py-1.5 bg-white text-teal-600 text-xs rounded-lg border border-teal-300 hover:bg-teal-50 transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  {lang === 'zh' ? '選擇案例' : 'Select Demo'}
+                </button>
+              </div>
             </div>
-            
-            {!showDemo ? (
-              <div className="p-8 bg-gradient-to-br from-blue-50 to-teal-50 min-h-[400px] flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-teal-600 rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                    <span className="text-white text-2xl font-bold">🏥</span>
-                  </div>
-                  <h3 className="text-2xl font-bold text-blue-600 mb-2">
-                    {lang === 'zh' ? '智慧醫療系統' : 'Smart Medical System'}
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    {lang === 'zh' ? '專業醫療管理系統' : 'Professional Medical Management System'}
-                  </p>
-                  <button 
-                    onClick={() => setShowDemo(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-teal-600 text-white rounded-lg hover:from-blue-700 hover:to-teal-700 transition-colors"
-                  >
-                    {lang === 'zh' ? '體驗演示' : 'Try Demo'}
-                  </button>
-                </div>
+
+            {/* Demo Content - 預設直接顯示 */}
+            <div className="relative" style={{ height: '800px' }}>
+              <div className="w-full h-full overflow-y-auto">
+                <MedicalDemo
+                  lang={lang}
+                  onDemoComplete={() => {}}
+                />
               </div>
-            ) : (
-              <div className="relative" style={{ height: '800px' }}>
-                <div className="absolute top-2 right-2 z-50">
-                  <button 
-                    onClick={() => setShowDemo(false)}
-                    className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                  >
-                    {lang === 'zh' ? '關閉演示' : 'Close Demo'}
-                  </button>
-                </div>
-                <div className="w-full h-full overflow-y-auto">
-                  <MedicalDemo 
-                    lang={lang} 
-                    onDemoComplete={() => setShowDemo(false)} 
-                  />
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </motion.div>
 

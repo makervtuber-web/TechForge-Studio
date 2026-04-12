@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UI_TEXT } from '../translations.ts';
+import DemoGallery from './DemoGallery.tsx';
 
 interface CreativeShowcaseProps {
   lang: 'en' | 'zh';
@@ -27,10 +28,30 @@ interface ShootingStar {
 }
 
 const CreativeShowcase: React.FC<CreativeShowcaseProps> = ({ lang }) => {
-  const [showDemo, setShowDemo] = useState(false);
+  // Demo gallery state - 預設顯示 Demo，支援未來多個 Demo 切換
+  const [showDemoGallery, setShowDemoGallery] = useState(false);
+  const [currentDemoId, setCurrentDemoId] = useState('creative-default');
+  const [currentDemoName, setCurrentDemoName] = useState(lang === 'zh' ? '夢境時尚' : 'Dream Fashion');
+  
   const [currentScene, setCurrentScene] = useState<'intro' | 'collection' | 'item'>('intro');
   const [selectedItem, setSelectedItem] = useState<FashionItem | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Handle demo selection
+  const handleDemoSelect = (demoId: string) => {
+    setCurrentDemoId(demoId);
+    setShowDemoGallery(false);
+    // Reset demo state when switching
+    setCurrentScene('intro');
+    setSelectedItem(null);
+    // Demo name mapping for future multi-demo support
+    const demoNames: { [key: string]: string } = {
+      'creative-default': lang === 'zh' ? '夢境時尚' : 'Dream Fashion',
+      'creative-tech': lang === 'zh' ? '科技軟體' : 'Tech Software',
+      'creative-art': lang === 'zh' ? '藝術展示' : 'Art Gallery'
+    };
+    setCurrentDemoName(demoNames[demoId] || demoNames['creative-default']);
+  };
 
   // Dream Fashion Collection
   const fashionItems: FashionItem[] = [
@@ -188,64 +209,50 @@ const CreativeShowcase: React.FC<CreativeShowcaseProps> = ({ lang }) => {
           viewport={{ once: true }}
           className="mb-16"
         >
+          {/* Demo Gallery - 選擇面板 */}
+          <AnimatePresence>
+            {showDemoGallery && (
+              <DemoGallery
+                industryId="creative"
+                industryName={lang === 'zh' ? '創意展示' : 'Creative Showcase'}
+                lang={lang}
+                onDemoSelect={handleDemoSelect}
+                currentDemoId={currentDemoId}
+                isOpen={showDemoGallery}
+                onClose={() => setShowDemoGallery(false)}
+              />
+            )}
+          </AnimatePresence>
+
           <div className="relative bg-black/50 backdrop-blur-md rounded-2xl overflow-hidden border border-purple-500/30 shadow-2xl">
-            <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 px-4 py-3 flex items-center justify-between backdrop-blur-sm">
+            {/* Demo Header Bar */}
+            <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 px-4 py-3 flex items-center justify-between backdrop-blur-sm border-b border-purple-500/30">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full" />
                 <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                 <div className="w-3 h-3 bg-green-500 rounded-full" />
               </div>
-              <span className="text-purple-300 text-sm font-mono">client-dream-fashion.demo</span>
-            </div>
-            
-            {!showDemo ? (
-              <div className="p-8 min-h-[400px] flex items-center justify-center">
-                <div className="text-center">
-                  <motion.div
-                    animate={{
-                      rotate: [0, 360],
-                      scale: [1, 1.2, 1],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "linear"
-                    }}
-                    className="text-6xl mb-4"
-                  >
-                    ✨
-                  </motion.div>
-                  <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
-                    {lang === 'zh' ? '客戶案例：夢境時尚' : 'Client Case: Dream Fashion'}
-                  </h3>
-                  <p className="text-gray-400 mb-4">
-                    {lang === 'zh' ? '為時尚品牌打造的沉浸式購物體驗網站' : 'Immersive shopping experience website for fashion brand'}
-                  </p>
-                  <p className="text-gray-500 text-sm mb-6">
-                    {lang === 'zh' ? '← 這只是其中一個案例，我們可以為任何行業定制獨特設計' : '← Just one example, we can customize unique designs for any industry'}
-                  </p>
-                  <button 
-                    onClick={() => setShowDemo(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105"
-                  >
-                    {lang === 'zh' ? '查看案例演示' : 'View Case Demo'}
-                  </button>
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="text-purple-300 text-sm font-mono">client-dream-fashion.demo</span>
+                <span className="text-xs text-purple-400">|</span>
+                <span className="text-xs text-purple-200 font-medium">{currentDemoName}</span>
               </div>
-            ) : (
-              <div className="relative" style={{ height: '800px' }}>
-                <div className="absolute top-2 right-2 z-50">
-                  <button 
-                    onClick={() => {
-                      setShowDemo(false);
-                      setCurrentScene('intro');
-                      setSelectedItem(null);
-                    }}
-                    className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                  >
-                    {lang === 'zh' ? '退出案例' : 'Exit Case'}
-                  </button>
-                </div>
+              <div className="flex items-center gap-2">
+                {/* 選擇案例按鈕 */}
+                <button
+                  onClick={() => setShowDemoGallery(true)}
+                  className="px-3 py-1.5 bg-purple-900/50 text-purple-200 text-xs rounded-lg border border-purple-500/50 hover:bg-purple-800/50 transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  {lang === 'zh' ? '選擇案例' : 'Select Demo'}
+                </button>
+              </div>
+            </div>
+
+            {/* Demo Content - 預設直接顯示 */}
+            <div className="relative" style={{ height: '800px' }}>
                 <div className="w-full h-full overflow-hidden">
                   {/* Case Study Header */}
                   <div className="bg-gradient-to-r from-purple-800/50 to-pink-800/50 px-6 py-4 backdrop-blur-sm border-b border-purple-500/30">
@@ -259,8 +266,8 @@ const CreativeShowcase: React.FC<CreativeShowcaseProps> = ({ lang }) => {
                     </div>
                   </div>
                   
-                  <DreamFashionDemo 
-                    lang={lang} 
+                  <DreamFashionDemo
+                    lang={lang}
                     fashionItems={fashionItems}
                     currentScene={currentScene}
                     setCurrentScene={setCurrentScene}
@@ -269,8 +276,7 @@ const CreativeShowcase: React.FC<CreativeShowcaseProps> = ({ lang }) => {
                     transitionToScene={transitionToScene}
                   />
                 </div>
-              </div>
-            )}
+            </div>
           </div>
         </motion.div>
 

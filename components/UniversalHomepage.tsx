@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { UI_TEXT } from '../translations.ts';
 import CyberShowcase from './CyberShowcase.tsx';
 import MedicalShowcase from './MedicalShowcase.tsx';
 import CreativeShowcase from './CreativeShowcase.tsx';
-import ProfessionalShowcase from './ProfessionalShowcase.tsx';
+import ProfessionalShowcase from './ProfessionalShowcase';
 import RetailShowcase from './RetailShowcase.tsx';
 import PersonalShowcase from './PersonalShowcase.tsx';
 import IndustrySidebar from './IndustrySidebar.tsx';
+import VeloCodeLogo, { VeloCodeLogoAnimated } from './VeloCodeLogo.tsx';
+import AdminButton from './AdminButton.tsx';
+import AdminDashboard from './AdminDashboard.tsx';
 
 interface UniversalHomepageProps {
   onInitiate: () => void;
@@ -18,6 +21,7 @@ const UniversalHomepage: React.FC<UniversalHomepageProps> = ({ onInitiate, lang 
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [activeShowcase, setActiveShowcase] = useState<string>('');
   const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
   const cyberShowcaseRef = React.useRef<HTMLDivElement>(null);
   const medicalShowcaseRef = React.useRef<HTMLDivElement>(null);
   const creativeShowcaseRef = React.useRef<HTMLDivElement>(null);
@@ -99,43 +103,43 @@ const UniversalHomepage: React.FC<UniversalHomepageProps> = ({ onInitiate, lang 
   const industries = [
     {
       id: 'tech',
-      title: lang === 'zh' ? '科技與軟體' : 'Tech & Software',
-      description: lang === 'zh' ? 'SaaS 平台、移動應用、API 開發' : 'SaaS platforms, mobile apps, API development',
+      title: lang === 'zh' ? '科技與軟體' : '科技與軟體',
+      description: lang === 'zh' ? 'SaaS 平台、移動應用、API 開發' : 'SaaS 平台、移動應用、API 開發',
       icon: '💻',
       color: '#3b82f6'
     },
     {
       id: 'healthcare',
-      title: lang === 'zh' ? '醫療健康' : 'Healthcare',
-      description: lang === 'zh' ? '診所網站、預約系統、健康管理' : 'Clinic websites, booking systems, health management',
+      title: lang === 'zh' ? '醫療健康' : '醫療健康',
+      description: lang === 'zh' ? '診所網站、預約系統、健康管理' : '診所網站、預約系統、健康管理',
       icon: '🏥',
       color: '#10b981'
     },
     {
       id: 'creative',
-      title: lang === 'zh' ? '創意設計' : 'Creative & Design',
-      description: lang === 'zh' ? '作品集、電商、品牌展示' : 'Portfolios, e-commerce, brand showcase',
+      title: lang === 'zh' ? '創意設計' : '創意設計',
+      description: lang === 'zh' ? '作品集、電商、品牌展示' : '作品集、電商、品牌展示',
       icon: '🎨',
       color: '#f59e0b'
     },
     {
       id: 'professional',
-      title: lang === 'zh' ? '專業服務' : 'Professional Services',
-      description: lang === 'zh' ? '顧問、律師、教育機構網站' : 'Consulting, legal, educational websites',
+      title: lang === 'zh' ? '專業服務' : '專業服務',
+      description: lang === 'zh' ? '顧問、律師、教育機構網站' : '顧問、律師、教育機構網站',
       icon: '🏢',
       color: '#6366f1'
     },
     {
       id: 'retail',
-      title: lang === 'zh' ? '零售餐飲' : 'Retail & F&B',
-      description: lang === 'zh' ? '線上商店、餐飲訂位、會員系統' : 'Online stores, restaurant booking, loyalty systems',
+      title: lang === 'zh' ? '零售餐飲' : '零售餐飲',
+      description: lang === 'zh' ? '線上商店、餐飲訂位、會員系統' : '線上商店、餐飲訂位、會員系統',
       icon: '🛍️',
       color: '#ef4444'
     },
     {
       id: 'personal',
-      title: lang === 'zh' ? '個人專業' : 'Personal Professional',
-      description: lang === 'zh' ? '個人專案、非營利組織、創新想法' : 'Personal projects, non-profits, innovative ideas',
+      title: lang === 'zh' ? '個人專業' : '個人專業',
+      description: lang === 'zh' ? '個人專案、非營利組織、創新想法' : '個人專案、非營利組織、創新想法',
       icon: '🌟',
       color: '#8b5cf6'
     }
@@ -143,51 +147,51 @@ const UniversalHomepage: React.FC<UniversalHomepageProps> = ({ onInitiate, lang 
 
   const services = [
     {
-      title: lang === 'zh' ? '客製化網站開發' : 'Custom Website Development',
-      description: lang === 'zh' ? '根據您的需求打造獨一無二的網站' : 'Build unique websites tailored to your needs',
+      title: lang === 'zh' ? '客製化網站開發' : '客製化網站開發',
+      description: lang === 'zh' ? '根據您的需求打造獨一無二的網站' : '根據您的需求打造獨一無二的網站',
       features: lang === 'zh' 
         ? ['響應式設計', 'SEO 優化', '快速載入', '安全防護']
-        : ['Responsive Design', 'SEO Optimization', 'Fast Loading', 'Security']
+        : ['響應式設計', 'SEO 優化', '快速載入', '安全防護']
     },
     {
-      title: lang === 'zh' ? '全端技術解決方案' : 'Full-Stack Solutions',
-      description: lang === 'zh' ? '從前端到後端的完整技術支援' : 'Complete technical support from frontend to backend',
+      title: lang === 'zh' ? '全端技術解決方案' : '全端技術解決方案',
+      description: lang === 'zh' ? '從前端到後端的完整技術支援' : '從前端到後端的完整技術支援',
       features: lang === 'zh'
         ? ['React/Vue', 'Node.js', '資料庫設計', 'API 開發']
-        : ['React/Vue', 'Node.js', 'Database Design', 'API Development']
+        : ['React/Vue', 'Node.js', '資料庫設計', 'API 開發']
     },
     {
-      title: lang === 'zh' ? '維護與更新服務' : 'Maintenance & Updates',
-      description: lang === 'zh' ? '確保您的網站持續穩定運行' : 'Keep your website running smoothly',
+      title: lang === 'zh' ? '維護與更新服務' : '維護與更新服務',
+      description: lang === 'zh' ? '確保您的網站持續穩定運行' : '確保您的網站持續穩定運行',
       features: lang === 'zh'
         ? ['定期備份', '安全更新', '性能優化', '技術支援']
-        : ['Regular Backups', 'Security Updates', 'Performance Optimization', 'Technical Support']
+        : ['定期備份', '安全更新', '性能優化', '技術支援']
     }
   ];
 
   const testimonials = [
     {
-      name: lang === 'zh' ? '陳醫師' : 'Dr. Chen',
-      role: lang === 'zh' ? '心理治療師' : 'Psychologist',
+      name: lang === 'zh' ? '陳醫師' : '陳醫師',
+      role: lang === 'zh' ? '心理治療師' : '心理治療師',
       content: lang === 'zh' 
         ? '專業的團隊，完全理解醫療行業的需求，網站既專業又親和。'
-        : 'Professional team that completely understands healthcare needs. Website is both professional and approachable.',
+        : '專業的團隊，完全理解醫療行業的需求，網站既專業又親和。',
       industry: 'healthcare'
     },
     {
-      name: lang === 'zh' ? '設計師 Alice' : 'Designer Alice',
-      role: lang === 'zh' ? '創意工作室負責人' : 'Creative Studio Owner',
+      name: lang === 'zh' ? '設計師 Alice' : '設計師 Alice',
+      role: lang === 'zh' ? '創意工作室負責人' : '創意工作室負責人',
       content: lang === 'zh'
         ? '完美呈現了我的設計風格，客戶都說網站很有藝術感！'
-        : 'Perfectly captured my design style. Clients love the artistic feel of the website!',
+        : '完美呈現了我的設計風格，客戶都說網站很有藝術感！',
       industry: 'creative'
     },
     {
-      name: lang === 'zh' ? '張總經理' : 'Manager Zhang',
-      role: lang === 'zh' ? '科技公司創辦人' : 'Tech Company Founder',
+      name: lang === 'zh' ? '張總經理' : '張總經理',
+      role: lang === 'zh' ? '科技公司創辦人' : '科技公司創辦人',
       content: lang === 'zh'
         ? '技術實力強，交付速度快，是我合作過最專業的團隊。'
-        : 'Strong technical skills, fast delivery, the most professional team I\'ve worked with.',
+        : '技術實力強，交付速度快，是我合作過最專業的團隊。',
       industry: 'tech'
     }
   ];
@@ -198,22 +202,15 @@ const UniversalHomepage: React.FC<UniversalHomepageProps> = ({ onInitiate, lang 
       <div className="fixed top-0 left-0 right-0 bg-white shadow-md z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {lang === 'zh' ? '專業網站開發' : 'Professional Web Development'}
-              </h1>
-              <p className="text-sm text-gray-600">
-                {lang === 'zh' ? '為各行業打造專業網站解決方案' : 'Professional website solutions for all industries'}
-              </p>
-            </div>
+            <VeloCodeLogo size="small" showTagline={true} />
             <button
               onClick={() => setSidebarVisible(true)}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all flex items-center space-x-2"
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-              <span>{lang === 'zh' ? '行業展示' : 'Industry Showcase'}</span>
+              <span>行業展示</span>
             </button>
           </div>
         </div>
@@ -222,44 +219,66 @@ const UniversalHomepage: React.FC<UniversalHomepageProps> = ({ onInitiate, lang 
       {/* Main Content - Add top padding to account for fixed header */}
       <div className="pt-20">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-20">
+      <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-blue-500/20 to-purple-500/20"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `linear-gradient(45deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.05) 75%, rgba(255,255,255,.05) 76%, transparent 77%, transparent)`,
+            backgroundSize: '50px 50px'
+          }}></div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-6 py-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-              {lang === 'zh' ? '專業網站開發' : 'Professional Web Development'}
-              <span className="block text-3xl md:text-4xl font-light text-gray-600 mt-2">
-                {lang === 'zh' ? '為您的事業打造完美線上形象' : 'Building Perfect Online Presence for Your Business'}
-              </span>
-            </h1>
-            
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
+            {/* Animated Brand Logo */}
+            <VeloCodeLogoAnimated className="mb-12" />
+
+            {/* Description */}
+            <p className="text-xl text-gray-300 max-w-4xl mx-auto mb-12 leading-relaxed">
               {lang === 'zh' 
-                ? '我們為各行各業提供專業的網站開發服務，從醫療診所到創意工作室，從科技新創到餐飲零售，我們都能為您打造最適合的線上解決方案。'
-                : 'We provide professional web development services for all industries. From medical clinics to creative studios, tech startups to retail stores, we build the perfect online solution for you.'
+                ? '我們打造極速網站，助您的事業騰飛。無論是醫療診所、創意工作室、科技新創，還是餐飲零售——每一個數位解決方案，我們都追求極致速度。'
+                : '我們打造極速網站，助您的事業騰飛。無論是醫療診所、創意工作室、科技新創，還是餐飲零售——每一個數位解決方案，我們都追求極致速度。'
               }
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
               <button 
                 onClick={onInitiate}
-                className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-lg shadow-lg"
+                className="px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-semibold text-lg shadow-xl transform hover:scale-105"
               >
-                {lang === 'zh' ? '開始您的專案' : 'Start Your Project'}
+                {lang === 'zh' ? '立即啟動專案' : '立即啟動專案'}
               </button>
-              <button className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-gray-400 transition-colors font-semibold text-lg">
-                {lang === 'zh' ? '查看作品集' : 'View Portfolio'}
+              <button 
+                onClick={() => setSidebarVisible(true)}
+                className="px-10 py-4 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-lg hover:bg-white/20 transition-all font-semibold text-lg"
+              >
+                {lang === 'zh' ? '見證極速體驗' : '見證極速體驗'}
               </button>
+            </div>
+
+            {/* Speed Indicators */}
+            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-400 mb-2">3x</div>
+                <div className="text-sm text-gray-400">{lang === 'zh' ? '更快交付' : '更快交付'}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-purple-400 mb-2">100%</div>
+                <div className="text-sm text-gray-400">{lang === 'zh' ? '客戶滿意度' : '客戶滿意度'}</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-400 mb-2">24h</div>
+                <div className="text-sm text-gray-400">{lang === 'zh' ? '初稿完成' : '初稿完成'}</div>
+              </div>
             </div>
           </motion.div>
         </div>
-
-        {/* Background decoration */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100 rounded-full filter blur-3xl opacity-30 -z-10" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-green-100 rounded-full filter blur-3xl opacity-30 -z-10" />
       </section>
 
       {/* Industry Selection */}
@@ -271,13 +290,13 @@ const UniversalHomepage: React.FC<UniversalHomepageProps> = ({ onInitiate, lang 
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              {lang === 'zh' ? '服務各行業' : 'Serving All Industries'}
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+              {lang === 'zh' ? '極速跨領域，服務無界限' : '極速跨領域，服務無界限'}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               {lang === 'zh' 
-                ? '無論您來自哪個行業，我們都有豐富的經驗為您打造最適合的網站解決方案'
-                : 'Whatever your industry, we have extensive experience to create the perfect website solution for you'
+                ? '無論您是科技、醫療、創意、專業服務、餐飲零售，還是個人品牌——我們都能以極速為您打造專屬解決方案。'
+                : '無論您是科技、醫療、創意、專業服務、餐飲零售，還是個人品牌——我們都能以極速為您打造專屬解決方案。'
               }
             </p>
           </motion.div>
@@ -307,7 +326,7 @@ const UniversalHomepage: React.FC<UniversalHomepageProps> = ({ onInitiate, lang 
                     handleIndustryLearnMore(industry.id);
                   }}
                 >
-                  <span>{lang === 'zh' ? '了解更多' : 'Learn more'}</span>
+                  <span>{lang === 'zh' ? '探索更多' : '探索更多'}</span>
                   <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
@@ -478,6 +497,20 @@ const UniversalHomepage: React.FC<UniversalHomepageProps> = ({ onInitiate, lang 
         onSectionChange={handleSidebarSelect}
         isVisible={sidebarVisible}
       />
+
+      {/* Admin Button */}
+      <AdminButton onClick={() => setAdminOpen(true)} lang={lang} />
+
+      {/* Admin Dashboard Modal */}
+      <AnimatePresence>
+        {adminOpen && (
+          <AdminDashboard
+            lang={lang}
+            isOpen={adminOpen}
+            onClose={() => setAdminOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

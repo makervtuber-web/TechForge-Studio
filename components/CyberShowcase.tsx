@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { UI_TEXT } from '../translations.ts';
 import CyberDemo from './CyberDemo.tsx';
+import DemoGallery from './DemoGallery.tsx';
 
 interface CyberShowcaseProps {
   lang: 'en' | 'zh';
@@ -9,7 +10,23 @@ interface CyberShowcaseProps {
 
 const CyberShowcase: React.FC<CyberShowcaseProps> = ({ lang }) => {
   const t = UI_TEXT[lang];
-  const [showDemo, setShowDemo] = useState(false);
+  // Demo gallery state - 預設顯示 Demo，支援未來多個 Demo 切換
+  const [showDemoGallery, setShowDemoGallery] = useState(false);
+  const [currentDemoId, setCurrentDemoId] = useState('tech-default');
+  const [currentDemoName, setCurrentDemoName] = useState(lang === 'zh' ? 'SaaS 平台' : 'SaaS Platform');
+
+  // Handle demo selection
+  const handleDemoSelect = (demoId: string) => {
+    setCurrentDemoId(demoId);
+    setShowDemoGallery(false);
+    // Demo name mapping for future multi-demo support
+    const demoNames: { [key: string]: string } = {
+      'tech-default': lang === 'zh' ? 'SaaS 平台' : 'SaaS Platform',
+      'tech-app': lang === 'zh' ? 'APP 產品' : 'App Product',
+      'tech-api': lang === 'zh' ? 'API 文檔' : 'API Docs'
+    };
+    setCurrentDemoName(demoNames[demoId] || demoNames['tech-default']);
+  };
 
   const features = [
     {
@@ -73,47 +90,56 @@ const CyberShowcase: React.FC<CyberShowcaseProps> = ({ lang }) => {
           viewport={{ once: true }}
           className="mb-16"
         >
+          {/* Demo Gallery - 選擇面板 */}
+          <AnimatePresence>
+            {showDemoGallery && (
+              <DemoGallery
+                industryId="tech"
+                industryName={lang === 'zh' ? '科技與軟體' : 'Tech & Software'}
+                lang={lang}
+                onDemoSelect={handleDemoSelect}
+                currentDemoId={currentDemoId}
+                isOpen={showDemoGallery}
+                onClose={() => setShowDemoGallery(false)}
+              />
+            )}
+          </AnimatePresence>
+
           <div className="relative bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 shadow-2xl">
-            <div className="bg-gray-800 px-4 py-3 flex items-center justify-between">
+            {/* Demo Header Bar */}
+            <div className="bg-gray-800 px-4 py-3 flex items-center justify-between border-b border-gray-700">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full" />
                 <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                 <div className="w-3 h-3 bg-green-500 rounded-full" />
               </div>
-              <span className="text-gray-400 text-sm font-mono">cyber-forge-2077.demo</span>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400 text-sm font-mono">cyber-forge-2077.demo</span>
+                <span className="text-xs text-gray-500">|</span>
+                <span className="text-xs text-blue-400 font-medium">{currentDemoName}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {/* 選擇案例按鈕 */}
+                <button
+                  onClick={() => setShowDemoGallery(true)}
+                  className="px-3 py-1.5 bg-gray-700 text-blue-400 text-xs rounded-lg border border-blue-500/50 hover:bg-gray-600 transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  {lang === 'zh' ? '選擇案例' : 'Select Demo'}
+                </button>
+              </div>
             </div>
-            
-            {!showDemo ? (
-              <div className="p-8 bg-gradient-to-br from-gray-900 to-black min-h-[400px] flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-6xl mb-4 animate-pulse">🌐</div>
-                  <h3 className="text-2xl font-bold text-blue-400 mb-2">CYBER-FORGE 2077</h3>
-                  <p className="text-gray-400 mb-6">{lang === 'zh' ? '賽博藍圖鑄造廠' : 'Cyber Blueprint Forge'}</p>
-                  <button 
-                    onClick={() => setShowDemo(true)}
-                    className="px-6 py-2 border border-blue-500 text-blue-400 rounded hover:bg-blue-500 hover:text-black transition-colors"
-                  >
-                    {lang === 'zh' ? '體驗演示' : 'Try Demo'}
-                  </button>
+
+            {/* Demo Content - 預設直接顯示 */}
+            <div className="relative" style={{ height: '1000px' }}>
+              <div className="w-full h-full overflow-hidden rounded-b-xl">
+                <div className="w-full h-full overflow-y-auto">
+                  <CyberDemo lang={lang} onDemoComplete={() => {}} />
                 </div>
               </div>
-            ) : (
-              <div className="relative" style={{ height: '1000px' }}>
-                <div className="absolute top-2 right-2 z-50">
-                  <button 
-                    onClick={() => setShowDemo(false)}
-                    className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
-                  >
-                    {lang === 'zh' ? '關閉演示' : 'Close Demo'}
-                  </button>
-                </div>
-                <div className="w-full h-full overflow-hidden rounded-b-xl">
-                  <div className="w-full h-full overflow-y-auto">
-                    <CyberDemo lang={lang} onDemoComplete={() => setShowDemo(false)} />
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </motion.div>
 

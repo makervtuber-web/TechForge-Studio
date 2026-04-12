@@ -5,7 +5,8 @@ export enum Stage {
   ARCHITECTURE = 'architecture',
   AUGMENTATION = 'augmentation',
   NEURAL_INPUT = 'neural_input',
-  TRANSMISSION = 'transmission'
+  TRANSMISSION = 'transmission',
+  PROFESSIONAL_SERVICES = 'professional_services'
 }
 
 export interface MasterBlueprint {

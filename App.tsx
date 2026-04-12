@@ -14,6 +14,7 @@ import BootScreen from './components/BootScreen.tsx';
 import HomePage from './components/HomePage.tsx';
 import UniversalHomepage from './components/UniversalHomepage.tsx';
 import AdminPortal from './components/AdminPortal.tsx';
+import ProfessionalShowcase from './components/ProfessionalShowcase';
 
 const ADMIN_CODE = "2077";
 
@@ -117,6 +118,10 @@ const App: React.FC = () => {
     }
   };
 
+  const handleBackToHome = () => {
+    setStage(Stage.HOME);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden flex flex-col pt-16">
 
@@ -129,6 +134,8 @@ const App: React.FC = () => {
           ) : (
             <HomePage key="home" lang={lang} onInitiate={() => setStage(Stage.ARCHITECTURE)} />
           )
+        ) : stage === Stage.PROFESSIONAL_SERVICES ? (
+          <ProfessionalShowcase key="professional-showcase" lang={lang} />
         ) : (
           <motion.div key="main-app" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col">
             <SyncMeter progress={progress} />

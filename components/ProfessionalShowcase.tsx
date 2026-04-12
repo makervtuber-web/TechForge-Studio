@@ -1,749 +1,709 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UI_TEXT } from '../translations.ts';
+import DemoGallery from './DemoGallery.tsx';
 
 interface ProfessionalShowcaseProps {
   lang: 'en' | 'zh';
 }
 
 const ProfessionalShowcase: React.FC<ProfessionalShowcaseProps> = ({ lang }) => {
-  const [showDemo, setShowDemo] = useState(false);
-  const [activeSection, setActiveSection] = useState('impact');
-  const [hoveredService, setHoveredService] = useState<number | null>(null);
-  const t = UI_TEXT[lang];
+  // Demo gallery state - 預設顯示 Demo，支援未來多個 Demo 切換
+  const [showDemoGallery, setShowDemoGallery] = useState(false);
+  const [currentDemoId, setCurrentDemoId] = useState('professional-default');
+  const [currentDemoName, setCurrentDemoName] = useState(lang === 'zh' ? '專業服務' : 'Professional Services');
+  
+  const [currentPage, setCurrentPage] = useState<'home' | 'about' | 'services' | 'team' | 'contact'>('home');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const painPoints = [
-    {
-      id: 1,
-      problem: lang === 'zh' ? '客戶信任度低' : 'Low Client Trust',
-      solution: lang === 'zh' ? '權威形象建立' : 'Authority Building',
-      impact: lang === 'zh' ? '信任度提升85%' : 'Trust Increase 85%',
-      color: 'from-blue-600 to-cyan-600'
-    },
-    {
-      id: 2,
-      problem: lang === 'zh' ? '流程效率低下' : 'Inefficient Processes',
-      solution: lang === 'zh' ? '智能流程優化' : 'Smart Process Optimization',
-      impact: lang === 'zh' ? '效率提升70%' : 'Efficiency Increase 70%',
-      color: 'from-purple-600 to-pink-600'
-    },
-    {
-      id: 3,
-      problem: lang === 'zh' ? '專業展示不足' : 'Poor Professional Display',
-      solution: lang === 'zh' ? '專業形象塑造' : 'Professional Image Shaping',
-      impact: lang === 'zh' ? '轉化率提升90%' : 'Conversion Increase 90%',
-      color: 'from-emerald-600 to-teal-600'
-    }
-  ];
+  // Handle demo selection
+  const handleDemoSelect = (demoId: string) => {
+    setCurrentDemoId(demoId);
+    setShowDemoGallery(false);
+    // Demo name mapping for future multi-demo support
+    const demoNames: { [key: string]: string } = {
+      'professional-default': lang === 'zh' ? '專業服務' : 'Professional Services',
+      'professional-consulting': lang === 'zh' ? '企業諮詢' : 'Business Consulting',
+      'professional-law': lang === 'zh' ? '法律事務' : 'Law Firm'
+    };
+    setCurrentDemoName(demoNames[demoId] || demoNames['professional-default']);
+  };
 
-  const services = [
-    {
-      id: 1,
-      title: lang === 'zh' ? '法律諮詢服務' : 'Legal Advisory Services',
-      description: lang === 'zh' ? '頂尖法律團隊提供精準法律解決方案與風險評估' : 'Premier legal team providing precise solutions and risk assessment',
-      icon: 'scale',
-      metrics: [
-        { label: lang === 'zh' ? '成功案例' : 'Successful Cases', value: '500+' },
-        { label: lang === 'zh' ? '客戶滿意度' : 'Client Satisfaction', value: '98%' },
-        { label: lang === 'zh' ? '平均處理時間' : 'Avg. Resolution Time', value: '48h' }
-      ]
-    },
-    {
-      id: 2,
-      title: lang === 'zh' ? '財務策略規劃' : 'Financial Strategy Planning',
-      description: lang === 'zh' ? '專業財務分析與資產管理，實現長期價值增長' : 'Professional financial analysis and asset management for long-term value growth',
-      icon: 'trending_up',
-      metrics: [
-        { label: lang === 'zh' ? '管理資產' : 'Assets Under Management', value: '$10M+' },
-        { label: lang === 'zh' ? '年化回報率' : 'Annual Returns', value: '15%' },
-        { label: lang === 'zh' ? '客戶數量' : 'Client Portfolio', value: '1000+' }
-      ]
-    },
-    {
-      id: 3,
-      title: lang === 'zh' ? '技術戰略顧問' : 'Technology Strategy Consulting',
-      description: lang === 'zh' ? '前沿技術解決方案與數位化轉型策略規劃' : 'Cutting-edge technology solutions and digital transformation strategy',
-      icon: 'lightbulb',
-      metrics: [
-        { label: lang === 'zh' ? '專案交付' : 'Projects Delivered', value: '200+' },
-        { label: lang === 'zh' ? '技術專家' : 'Technical Experts', value: '50+' },
-        { label: lang === 'zh' ? '客戶留存率' : 'Client Retention Rate', value: '95%' }
-      ]
-    }
-  ];
+  const CorporateWebsite = () => (
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="bg-white shadow-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 flex items-center">
+                <h1 className="text-xl font-bold text-blue-900">
+                  {lang === 'zh' ? 'professional services group' : 'professional services group'}
+                </h1>
+              </div>
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                {[
+                  { id: 'home', label: lang === 'zh' ? 'home' : 'home' },
+                  { id: 'about', label: lang === 'zh' ? 'about us' : 'about us' },
+                  { id: 'services', label: lang === 'zh' ? 'services' : 'services' },
+                  { id: 'team', label: lang === 'zh' ? 'team' : 'team' },
+                  { id: 'contact', label: lang === 'zh' ? 'contact' : 'contact' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentPage(item.id as any)}
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-xs font-medium ${
+                      currentPage === item.id
+                        ? 'border-blue-500 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="sm:hidden">
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {mobileMenuOpen && (
+          <div className="sm:hidden">
+            <div className="pt-2 pb-3 space-y-1">
+              {[
+                { id: 'home', label: lang === 'zh' ? 'home' : 'home' },
+                { id: 'about', label: lang === 'zh' ? 'about us' : 'about us' },
+                { id: 'services', label: lang === 'zh' ? 'services' : 'services' },
+                { id: 'team', label: lang === 'zh' ? 'team' : 'team' },
+                { id: 'contact', label: lang === 'zh' ? 'contact' : 'contact' }
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setCurrentPage(item.id as any);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`block pl-3 pr-4 py-2 border-l-4 text-xs font-medium w-full text-left ${
+                    currentPage === item.id
+                      ? 'bg-blue-50 border-blue-500 text-blue-700'
+                      : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Content */}
+      <div className="h-[600px] overflow-y-auto">
+        {currentPage === 'home' && (
+          <div>
+            {/* Hero Section */}
+            <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+              <div className="max-w-7xl mx-auto px-4 py-16">
+                <div className="text-center">
+                  <h1 className="text-3xl font-bold mb-4">
+                    {lang === 'zh' ? 'welcome to professional services group' : 'welcome to professional services group'}
+                  </h1>
+                  <p className="text-lg mb-6 max-w-2xl mx-auto">
+                    {lang === 'zh'
+                      ? 'your trusted partner for business excellence and strategic growth'
+                      : 'your trusted partner for business excellence and strategic growth'
+                    }
+                  </p>
+                  <div className="space-x-3">
+                    <button
+                      onClick={() => setCurrentPage('services')}
+                      className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm"
+                    >
+                      {lang === 'zh' ? 'our services' : 'our services'}
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage('contact')}
+                      className="border-2 border-white text-white px-6 py-2 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors text-sm"
+                    >
+                      {lang === 'zh' ? 'contact us' : 'contact us'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* Features */}
+            <section className="py-12 bg-gray-50">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                    {lang === 'zh' ? 'why choose us' : 'why choose us'}
+                  </h2>
+                  <p className="text-gray-600">
+                    {lang === 'zh'
+                      ? 'we deliver exceptional results through expertise, innovation, and dedication'
+                      : 'we deliver exceptional results through expertise, innovation, and dedication'
+                    }
+                  </p>
+                </div>
+                <div className="grid md:grid-cols-3 gap-6">
+                  {[
+                    {
+                      title: lang === 'zh' ? 'expertise' : 'expertise',
+                      description: lang === 'zh'
+                        ? 'over 25 years of combined experience'
+                        : 'over 25 years of combined experience',
+                      icon: 'brain'
+                    },
+                    {
+                      title: lang === 'zh' ? 'innovation' : 'innovation',
+                      description: lang === 'zh'
+                        ? 'cutting-edge solutions for your business'
+                        : 'cutting-edge solutions for your business',
+                      icon: 'lightbulb'
+                    },
+                    {
+                      title: lang === 'zh' ? 'results' : 'results',
+                      description: lang === 'zh'
+                        ? 'proven track record of success'
+                        : 'proven track record of success',
+                      icon: 'chart-bar'
+                    }
+                  ].map((feature, index) => (
+                    <div key={index} className="text-center p-6 bg-white rounded-lg shadow-sm">
+                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="text-lg text-blue-600">{feature.icon}</span>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
+                      <p className="text-gray-600 text-sm">{feature.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Stats */}
+            <section className="py-12 bg-blue-600 text-white">
+              <div className="max-w-7xl mx-auto px-4">
+                <div className="grid md:grid-cols-4 gap-6 text-center">
+                  {[
+                    { number: '500+', label: lang === 'zh' ? 'clients served' : 'clients served' },
+                    { number: '25+', label: lang === 'zh' ? 'years experience' : 'years experience' },
+                    { number: '50+', label: lang === 'zh' ? 'expert consultants' : 'expert consultants' },
+                    { number: '98%', label: lang === 'zh' ? 'client satisfaction' : 'client satisfaction' }
+                  ].map((stat, index) => (
+                    <div key={index}>
+                      <div className="text-3xl font-bold mb-1">{stat.number}</div>
+                      <div className="text-blue-100 text-sm">{stat.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {currentPage === 'about' && (
+          <div className="py-12">
+            <div className="max-w-7xl mx-auto px-4">
+              <h1 className="text-3xl font-bold text-gray-900 mb-6">
+                {lang === 'zh' ? 'about our company' : 'about our company'}
+              </h1>
+              <div className="grid md:grid-cols-2 gap-8 items-center mb-12">
+                <div>
+                  <p className="text-gray-600 mb-4">
+                    {lang === 'zh'
+                      ? 'founded in 1998, professional services group has been a trusted advisor to businesses across various industries. we combine deep industry knowledge with strategic insight to help our clients achieve their goals.'
+                      : 'founded in 1998, professional services group has been a trusted advisor to businesses across various industries. we combine deep industry knowledge with strategic insight to help our clients achieve their goals.'
+                  }
+                  </p>
+                  <p className="text-gray-600 mb-6">
+                    {lang === 'zh'
+                      ? 'our team of experienced consultants is committed to delivering exceptional value through innovative solutions and personalized service.'
+                      : 'our team of experienced consultants is committed to delivering exceptional value through innovative solutions and personalized service.'
+                  }
+                  </p>
+                  <div className="space-y-3">
+                    {[
+                      lang === 'zh' ? 'integrity and transparency' : 'integrity and transparency',
+                      lang === 'zh' ? 'client-centric approach' : 'client-centric approach',
+                      lang === 'zh' ? 'continuous innovation' : 'continuous innovation',
+                      lang === 'zh' ? 'excellence in execution' : 'excellence in execution'
+                    ].map((value, index) => (
+                      <div key={index} className="flex items-center">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
+                        <span className="text-gray-700 text-sm">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-gray-200 h-64 rounded-lg"></div>
+              </div>
+
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">
+                  {lang === 'zh' ? 'our mission & vision' : 'our mission & vision'}
+                </h2>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {lang === 'zh' ? 'our mission' : 'our mission'}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      {lang === 'zh'
+                        ? 'to empower businesses with strategic insights and innovative solutions that drive sustainable growth and long-term success.'
+                        : 'to empower businesses with strategic insights and innovative solutions that drive sustainable growth and long-term success.'
+                      }
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {lang === 'zh' ? 'our vision' : 'our vision'}
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      {lang === 'zh'
+                        ? 'to be the most trusted consulting partner, recognized for our expertise, integrity, and commitment to client success.'
+                        : 'to be the most trusted consulting partner, recognized for our expertise, integrity, and commitment to client success.'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentPage === 'services' && (
+          <div className="py-12">
+            <div className="max-w-4xl mx-auto px-6">
+              <div className="text-center mb-12">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                  {lang === 'zh' ? 'our services' : 'our services'}
+                </h1>
+                <p className="text-gray-600 max-w-2xl mx-auto">
+                  {lang === 'zh'
+                    ? 'comprehensive consulting solutions tailored to your business needs'
+                    : 'comprehensive consulting solutions tailored to your business needs'
+                  }
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                {[
+                  {
+                    title: lang === 'zh' ? 'strategic consulting' : 'strategic consulting',
+                    description: lang === 'zh'
+                      ? 'provide comprehensive strategic planning and business transformation consulting services'
+                      : 'provide comprehensive strategic planning and business transformation consulting services'
+                  },
+                  {
+                    title: lang === 'zh' ? 'financial advisory' : 'financial advisory',
+                    description: lang === 'zh'
+                      ? 'professional financial consulting and investment advisory services'
+                      : 'professional financial consulting and investment advisory services'
+                  },
+                  {
+                    title: lang === 'zh' ? 'legal services' : 'legal services',
+                    description: lang === 'zh'
+                      ? 'comprehensive legal support and compliance consulting'
+                      : 'comprehensive legal support and compliance consulting'
+                  },
+                  {
+                    title: lang === 'zh' ? 'digital transformation' : 'digital transformation',
+                    description: lang === 'zh'
+                      ? 'help enterprises achieve digital transformation'
+                      : 'help enterprises achieve digital transformation'
+                  }
+                ].map((service, index) => (
+                  <div key={index} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3">{service.title}</h3>
+                    <p className="text-gray-600 leading-relaxed mb-4">{service.description}</p>
+                    <button className="text-blue-600 font-semibold hover:text-blue-700 transition-colors text-sm">
+                      {lang === 'zh' ? 'learn more' : 'learn more'} {'>'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-12 bg-blue-50 p-6 rounded-lg text-center">
+                <h2 className="text-xl font-bold text-gray-900 mb-3">
+                  {lang === 'zh' ? 'need a custom solution?' : 'need a custom solution?'}
+                </h2>
+                <p className="text-gray-600 mb-4 text-sm">
+                  {lang === 'zh'
+                    ? 'we tailor our services to meet your specific requirements and business objectives.'
+                    : 'we tailor our services to meet your specific requirements and business objectives.'
+                  }
+                </p>
+                <button
+                  onClick={() => setCurrentPage('contact')}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm"
+                >
+                  {lang === 'zh' ? 'get in touch' : 'get in touch'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentPage === 'team' && (
+          <div className="py-12">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                  {lang === 'zh' ? 'our team' : 'our team'}
+                </h1>
+                <p className="text-gray-600">
+                  {lang === 'zh'
+                    ? 'meet the experts behind our success'
+                    : 'meet the experts behind our success'
+                  }
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  {
+                    name: lang === 'zh' ? 'zhang minghao' : 'david zhang',
+                    position: lang === 'zh' ? 'chief executive officer' : 'chief executive officer',
+                    bio: lang === 'zh'
+                      ? 'with over 20 years of experience in strategic management and business consulting'
+                      : 'with over 20 years of experience in strategic management and business consulting'
+                  },
+                  {
+                    name: lang === 'zh' ? 'li weijia' : 'william li',
+                    position: lang === 'zh' ? 'chief financial officer' : 'chief financial officer',
+                    bio: lang === 'zh'
+                      ? 'expert in financial management and investment strategy with 15 years of experience'
+                      : 'expert in financial management and investment strategy with 15 years of experience'
+                  },
+                  {
+                    name: lang === 'zh' ? 'chen yuxin' : 'emily chen',
+                    position: lang === 'zh' ? 'chief operating officer' : 'chief operating officer',
+                    bio: lang === 'zh'
+                      ? 'specialized in operational excellence and process optimization'
+                      : 'specialized in operational excellence and process optimization'
+                  },
+                  {
+                    name: lang === 'zh' ? 'wang zhihong' : 'james wang',
+                    position: lang === 'zh' ? 'chief technology officer' : 'chief technology officer',
+                    bio: lang === 'zh'
+                      ? 'technology leader with expertise in digital transformation'
+                      : 'technology leader with expertise in digital transformation'
+                  }
+                ].map((member, index) => (
+                  <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div className="bg-gray-300 h-32"></div>
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{member.name}</h3>
+                      <p className="text-blue-600 font-medium mb-2 text-sm">{member.position}</p>
+                      <p className="text-gray-600 text-xs">{member.bio}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentPage === 'contact' && (
+          <div className="py-12">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                  {lang === 'zh' ? 'contact us' : 'contact us'}
+                </h1>
+                <p className="text-gray-600">
+                  {lang === 'zh'
+                    ? 'we would love to hear from you. get in touch with us today.'
+                    : 'we would love to hear from you. get in touch with us today.'
+                  }
+                </p>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-6">
+                    {lang === 'zh' ? 'get in touch' : 'get in touch'}
+                  </h2>
+                  <form className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {lang === 'zh' ? 'name' : 'name'}
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        placeholder={lang === 'zh' ? 'your name' : 'your name'}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {lang === 'zh' ? 'email' : 'email'}
+                      </label>
+                      <input
+                        type="email"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        placeholder={lang === 'zh' ? 'your email' : 'your email'}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {lang === 'zh' ? 'message' : 'message'}
+                      </label>
+                      <textarea
+                        rows={3}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                        placeholder={lang === 'zh' ? 'your message' : 'your message'}
+                      ></textarea>
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      {lang === 'zh' ? 'send message' : 'send message'}
+                    </button>
+                  </form>
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-6">
+                    {lang === 'zh' ? 'contact information' : 'contact information'}
+                  </h2>
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2">
+                        {lang === 'zh' ? 'address' : 'address'}
+                      </h3>
+                      <p className="text-gray-600">
+                        {lang === 'zh'
+                          ? '123 business avenue, suite 100, central, hong kong'
+                          : '123 business avenue, suite 100, central, hong kong'
+                        }
+                      </p>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2">
+                        {lang === 'zh' ? 'phone' : 'phone'}
+                      </h3>
+                      <p className="text-gray-600">+852 2345 6789</p>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2">
+                        {lang === 'zh' ? 'email' : 'email'}
+                      </h3>
+                      <p className="text-gray-600">info@professionalservices.com</p>
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2">
+                        {lang === 'zh' ? 'business hours' : 'business hours'}
+                      </h3>
+                      <p className="text-gray-600">
+                        {lang === 'zh'
+                          ? 'monday - friday: 9:00 am - 6:00 pm'
+                          : 'monday - friday: 9:00 am - 6:00 pm'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Footer */}
+        <footer className="bg-gray-900 text-white py-8">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-4 gap-6">
+              <div>
+                <h3 className="text-sm font-semibold mb-3">
+                  {lang === 'zh' ? 'professional services group' : 'professional services group'}
+                </h3>
+                <p className="text-gray-400 text-xs">
+                  {lang === 'zh'
+                    ? 'your trusted partner for business excellence'
+                    : 'your trusted partner for business excellence'
+                  }
+                </p>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-3">
+                  {lang === 'zh' ? 'quick links' : 'quick links'}
+                </h4>
+                <ul className="space-y-1 text-gray-400 text-xs">
+                  <li><button onClick={() => setCurrentPage('about')} className="hover:text-white">{lang === 'zh' ? 'about us' : 'about us'}</button></li>
+                  <li><button onClick={() => setCurrentPage('services')} className="hover:text-white">{lang === 'zh' ? 'services' : 'services'}</button></li>
+                  <li><button onClick={() => setCurrentPage('team')} className="hover:text-white">{lang === 'zh' ? 'team' : 'team'}</button></li>
+                  <li><button onClick={() => setCurrentPage('contact')} className="hover:text-white">{lang === 'zh' ? 'contact' : 'contact'}</button></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-3">
+                  {lang === 'zh' ? 'services' : 'services'}
+                </h4>
+                <ul className="space-y-1 text-gray-400 text-xs">
+                  <li>{lang === 'zh' ? 'strategic consulting' : 'strategic consulting'}</li>
+                  <li>{lang === 'zh' ? 'financial advisory' : 'financial advisory'}</li>
+                  <li>{lang === 'zh' ? 'legal services' : 'legal services'}</li>
+                  <li>{lang === 'zh' ? 'digital transformation' : 'digital transformation'}</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold mb-3">
+                  {lang === 'zh' ? 'contact info' : 'contact info'}
+                </h4>
+                <ul className="space-y-1 text-gray-400 text-xs">
+                  <li>+852 2345 6789</li>
+                  <li>info@professionalservices.com</li>
+                  <li>123 business avenue, central, hong kong</li>
+                </ul>
+              </div>
+            </div>
+            <div className="border-t border-gray-800 mt-6 pt-6 text-center text-gray-400">
+              <p className="text-xs">&copy; 2024 professional services group. {lang === 'zh' ? 'all rights reserved.' : 'all rights reserved.'}</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
 
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white relative overflow-hidden">
+    <section className="py-20 bg-black text-white relative overflow-hidden">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-black to-blue-900">
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute top-10 left-10 w-32 h-32 bg-blue-500 rounded-full filter blur-3xl animate-pulse" />
+            <div className="absolute bottom-10 right-10 w-48 h-48 bg-blue-500 rounded-full filter blur-3xl animate-pulse delay-1000" />
+            <div className="absolute top-1/2 left-1/2 w-40 h-40 bg-blue-500 rounded-full filter blur-3xl animate-pulse delay-2000" />
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-16"
         >
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-              {lang === 'zh' ? '專業' : 'Professional'}
-            </span>
-            <br />
-            <span className="bg-gradient-to-r from-slate-400 via-slate-200 to-white bg-clip-text text-transparent">
-              {lang === 'zh' ? '重新定義' : 'Redefined'}
-            </span>
-          </h1>
-          
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="text-xl text-slate-300 max-w-4xl mx-auto leading-relaxed"
-          >
-            {lang === 'zh' 
-              ? '不僅是網站設計，更是專業形象的數字化升級。讓您的專業精神在數字世界中熠熠生輝。'
-              : 'Not just website design, but digital upgrade of professional image. Let your professionalism shine in the digital world.'
-            }
-          </motion.p>
-        </motion.div>
-
-        {/* Pain Points & Solutions */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-20"
-        >
-          <h2 className="text-3xl font-bold text-center text-white mb-12">
-            {lang === 'zh' ? '痛點解決，效果可見' : 'Pain Points Solved, Results Visible'}
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4">
+            {lang === 'zh' ? 'professional services group' : 'professional services group'}
           </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {painPoints.map((point, index) => (
-              <motion.div
-                key={point.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8"
-              >
-                {/* Problem */}
-                <div className="mb-6">
-                  <div className="text-sm text-slate-400 mb-2">
-                    {lang === 'zh' ? '挑戰' : 'Challenge'}
-                  </div>
-                  <div className="text-xl font-semibold text-slate-200">
-                    {point.problem}
-                  </div>
-                </div>
-                
-                {/* Solution */}
-                <div className="mb-6">
-                  <div className="text-sm text-slate-400 mb-2">
-                    {lang === 'zh' ? '解決方案' : 'Solution'}
-                  </div>
-                  <div className={`text-lg font-medium bg-gradient-to-r ${point.color} bg-clip-text text-transparent`}>
-                    {point.solution}
-                  </div>
-                </div>
-                
-                {/* Impact */}
-                <div className="pt-6 border-t border-slate-700">
-                  <div className={`text-2xl font-bold bg-gradient-to-r ${point.color} bg-clip-text text-transparent`}>
-                    {point.impact}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+            {lang === 'zh' 
+              ? 'transform your business with our comprehensive consulting services and strategic solutions'
+              : 'transform your business with our comprehensive consulting services and strategic solutions'
+            }
+          </p>
         </motion.div>
 
         {/* Demo Preview Window */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="mb-20"
+          className="mb-16"
         >
-          <div className="relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-700 shadow-2xl">
-            {/* Browser Header */}
-            <div className="bg-slate-800 px-4 py-3 flex items-center justify-between border-b border-slate-700">
+          {/* Demo Gallery - 選擇面板 */}
+          <AnimatePresence>
+            {showDemoGallery && (
+              <DemoGallery
+                industryId="professional"
+                industryName={lang === 'zh' ? '專業服務' : 'Professional Services'}
+                lang={lang}
+                onDemoSelect={handleDemoSelect}
+                currentDemoId={currentDemoId}
+                isOpen={showDemoGallery}
+                onClose={() => setShowDemoGallery(false)}
+              />
+            )}
+          </AnimatePresence>
+
+          <div className="relative bg-black/50 backdrop-blur-md rounded-2xl overflow-hidden border border-blue-500/30 shadow-2xl">
+            {/* Demo Header Bar */}
+            <div className="bg-gradient-to-r from-blue-900/50 to-blue-800/50 px-4 py-3 flex items-center justify-between backdrop-blur-sm border-b border-blue-500/30">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full" />
                 <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                 <div className="w-3 h-3 bg-green-500 rounded-full" />
               </div>
-              <span className="text-slate-400 text-sm font-mono">professional-services.com</span>
+              <div className="flex items-center gap-2">
+                <span className="text-blue-300 text-sm font-mono">professional-services.demo</span>
+                <span className="text-xs text-blue-400">|</span>
+                <span className="text-xs text-blue-200 font-medium">{currentDemoName}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {/* 選擇案例按鈕 */}
+                <button
+                  onClick={() => setShowDemoGallery(true)}
+                  className="px-3 py-1.5 bg-blue-900/50 text-blue-200 text-xs rounded-lg border border-blue-500/50 hover:bg-blue-800/50 transition-colors flex items-center gap-1"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  {lang === 'zh' ? '選擇案例' : 'Select Demo'}
+                </button>
+              </div>
             </div>
-            
-            {!showDemo ? (
-              <div className="p-12 bg-gradient-to-br from-slate-900 via-black to-slate-900 min-h-[500px] flex items-center justify-center">
-                <div className="text-center max-w-md">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="w-20 h-20 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl flex items-center justify-center mb-8 mx-auto border border-slate-600"
-                  >
-                    <span className="text-white text-2xl font-bold">PS</span>
-                  </motion.div>
-                  
-                  <h3 className="text-3xl font-bold text-white mb-4">
-                    {lang === 'zh' ? '專業服務' : 'Professional Services'}
-                  </h3>
-                  <p className="text-slate-300 mb-8 leading-relaxed">
-                    {lang === 'zh' ? '體驗未來的專業服務網站，感受權威與便利的完美結合' : 'Experience the future of professional service websites, feel the perfect combination of authority and convenience'}
-                  </p>
-                  
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowDemo(true)}
-                    className="px-8 py-4 bg-gradient-to-r from-slate-700 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-500 transition-all duration-300 font-medium"
-                  >
-                    {lang === 'zh' ? '體驗演示' : 'Try Demo'}
-                  </motion.button>
-                </div>
+
+            {/* Demo Content - 預設直接顯示 */}
+            <div className="relative" style={{ height: '600px' }}>
+              <div className="w-full h-full overflow-hidden">
+                <CorporateWebsite />
               </div>
-            ) : (
-              <div className="relative" style={{ height: '800px' }}>
-                <div className="absolute top-4 right-4 z-50">
-                  <button 
-                    onClick={() => setShowDemo(false)}
-                    className="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    {lang === 'zh' ? '關閉演示' : 'Close Demo'}
-                  </button>
-                </div>
-                <div className="w-full h-full overflow-y-auto">
-                  <ProfessionalDemo 
-                    lang={lang} 
-                    onDemoComplete={() => setShowDemo(false)} 
-                    services={services}
-                    activeSection={activeSection}
-                    setActiveSection={setActiveSection}
-                    hoveredService={hoveredService}
-                    setHoveredService={setHoveredService}
-                  />
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </motion.div>
 
-        {/* Tech Excellence */}
+        {/* Tech Stack */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-center"
         >
-          <h3 className="text-3xl font-bold text-white mb-8">
-            {lang === 'zh' ? '技術卓越，品質保證' : 'Technical Excellence, Quality Assured'}
+          <h3 className="text-2xl font-bold text-white mb-6">
+            {lang === 'zh' ? '專業技術架構' : 'Professional Tech Stack'}
           </h3>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-            {[
-              { name: 'React', desc: lang === 'zh' ? '現代化框架' : 'Modern Framework' },
-              { name: 'TypeScript', desc: lang === 'zh' ? '類型安全' : 'Type Safety' },
-              { name: 'Next.js', desc: lang === 'zh' ? '性能優化' : 'Performance' },
-              { name: 'AWS', desc: lang === 'zh' ? '雲端部署' : 'Cloud Deploy' }
-            ].map((tech, index) => (
-              <motion.div
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            {['React', 'TypeScript', 'Tailwind CSS', 'Framer Motion', 'Responsive Design', 'Modern UI/UX'].map((tech, index) => (
+              <span
                 key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -2 }}
-                className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-xl p-4"
+                className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-full text-gray-300 text-sm font-medium backdrop-blur-sm"
               >
-                <div className="text-lg font-bold text-white mb-1">{tech.name}</div>
-                <div className="text-xs text-slate-400">{tech.desc}</div>
-              </motion.div>
+                {tech}
+              </span>
             ))}
           </div>
           
-          <div className="max-w-4xl mx-auto">
-            <p className="text-slate-300 leading-relaxed">
+          <div className="max-w-3xl mx-auto">
+            <p className="text-gray-400 text-sm leading-relaxed">
               {lang === 'zh' 
-                ? '我們不僅設計網站，更打造數字化專業形象。每一行代碼都體現對專業精神的深刻理解，每一個像素都傳達權威與信賴。'
-                : 'We don\'t just design websites, we craft digital professional images. Every line of code reflects deep understanding of professionalism, every pixel conveys authority and trust.'
+                ? 'built with React and TypeScript for robust performance, styled with Tailwind CSS for professional appearance, enhanced with Framer Motion for smooth interactions, and designed with responsive principles for optimal viewing across all devices.'
+                : 'built with React and TypeScript for robust performance, styled with Tailwind CSS for professional appearance, enhanced with Framer Motion for smooth interactions, and designed with responsive principles for optimal viewing across all devices.'
               }
             </p>
           </div>
         </motion.div>
       </div>
     </section>
-  );
-};
-
-// Professional Demo Component
-interface ProfessionalDemoProps {
-  lang: 'en' | 'zh';
-  onDemoComplete: () => void;
-  services: any[];
-  activeSection: string;
-  setActiveSection: (section: string) => void;
-  hoveredService: number | null;
-  setHoveredService: (id: number | null) => void;
-}
-
-const ProfessionalDemo: React.FC<ProfessionalDemoProps> = ({
-  lang,
-  onDemoComplete,
-  services,
-  activeSection,
-  setActiveSection,
-  hoveredService,
-  setHoveredService
-}) => {
-  const [selectedService, setSelectedService] = useState<number | null>(null);
-  const [bookingStep, setBookingStep] = useState(0);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    service: '',
-    message: ''
-  });
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 text-white">
-      {/* Navigation */}
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="w-10 h-10 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center border border-slate-600"
-              >
-                <span className="text-white font-bold">PS</span>
-              </motion.div>
-              <div>
-                <h1 className="text-xl font-bold text-white">
-                  {lang === 'zh' ? '專業服務集團' : 'Professional Services Group'}
-                </h1>
-                <p className="text-xs text-slate-400">
-                  {lang === 'zh' ? '卓越 · 專業 · 信賴' : 'Excellence · Professional · Trust'}
-                </p>
-              </div>
-            </div>
-            
-            <nav className="hidden md:flex space-x-8">
-              {['impact', 'services', 'team', 'booking'].map((section) => (
-                <button
-                  key={section}
-                  onClick={() => setActiveSection(section)}
-                  className={`relative text-sm font-medium transition-all duration-300 ${
-                    activeSection === section
-                      ? 'text-white'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {section === 'impact' && (lang === 'zh' ? '價值主張' : 'Value Proposition')}
-                  {section === 'services' && (lang === 'zh' ? '核心服務' : 'Core Services')}
-                  {section === 'team' && (lang === 'zh' ? '專業團隊' : 'Professional Team')}
-                  {section === 'booking' && (lang === 'zh' ? '預約諮詢' : 'Schedule Consultation')}
-                  
-                  {activeSection === section && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute -bottom-2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-500"
-                    />
-                  )}
-                </button>
-              ))}
-            </nav>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section - Impact First */}
-      {activeSection === 'impact' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="min-h-screen flex items-center justify-center px-6"
-        >
-          <div className="max-w-6xl mx-auto text-center">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="mb-12"
-            >
-              <h2 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-                <span className="bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-                  {lang === 'zh' ? '解決痛點' : 'Solve Pain Points'}
-                </span>
-                <br />
-                <span className="bg-gradient-to-r from-slate-400 via-slate-200 to-white bg-clip-text text-transparent">
-                  {lang === 'zh' ? '創造價值' : 'Create Value'}
-                </span>
-              </h2>
-              <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                {lang === 'zh' 
-                  ? '我們不僅理解您的挑戰，更提供可衡量的解決方案。讓數據說話，讓成果證明專業。'
-                  : 'We don\'t just understand your challenges, we provide measurable solutions. Let data speak, let results prove professionalism.'
-                }
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-              {[
-                { metric: '85%', label: lang === 'zh' ? '信任度提升' : 'Trust Increase' },
-                { metric: '70%', label: lang === 'zh' ? '效率提升' : 'Efficiency Increase' },
-                { metric: '90%', label: lang === 'zh' ? '轉化率提升' : 'Conversion Increase' }
-              ].map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                  className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8"
-                >
-                  <div className="text-4xl font-bold bg-gradient-to-r from-blue-500 to-cyan-500 bg-clip-text text-transparent mb-2">
-                    {item.metric}
-                  </div>
-                  <div className="text-slate-400">{item.label}</div>
-                </motion.div>
-              ))}
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setActiveSection('services')}
-              className="px-8 py-4 bg-gradient-to-r from-slate-700 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-500 transition-all duration-300 font-medium"
-            >
-              {lang === 'zh' ? '探索服務' : 'Explore Services'}
-            </motion.button>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Services Section */}
-      {activeSection === 'services' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="min-h-screen px-6 py-20"
-        >
-          <div className="max-w-7xl mx-auto">
-            <h3 className="text-4xl font-bold text-center text-white mb-16">
-              {lang === 'zh' ? '核心服務' : 'Core Services'}
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {services.map((service, index) => (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -10 }}
-                  onHoverStart={() => setHoveredService(service.id)}
-                  onHoverEnd={() => setHoveredService(null)}
-                  onClick={() => setSelectedService(service.id)}
-                  className="relative group cursor-pointer"
-                >
-                  <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 h-full">
-                    {/* Service Icon */}
-                    <div className="w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl flex items-center justify-center mb-6 border border-slate-600">
-                      {service.icon === 'scale' && (
-                        <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-                        </svg>
-                      )}
-                      {service.icon === 'trending_up' && (
-                        <svg className="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                      )}
-                      {service.icon === 'lightbulb' && (
-                        <svg className="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                        </svg>
-                      )}
-                    </div>
-                    
-                    {/* Service Title */}
-                    <h4 className="text-xl font-bold text-white mb-4">{service.title}</h4>
-                    
-                    {/* Service Description */}
-                    <p className="text-slate-300 mb-6">{service.description}</p>
-                    
-                    {/* Metrics */}
-                    <div className="space-y-3">
-                      {service.metrics.map((metric: any, i: number) => (
-                        <div key={i} className="flex justify-between items-center">
-                          <span className="text-sm text-slate-400">{metric.label}</span>
-                          <span className="text-sm font-bold text-white">{metric.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    {/* Hover Effect */}
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-2xl pointer-events-none opacity-0 group-hover:opacity-100"
-                    />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Team Section */}
-      {activeSection === 'team' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="min-h-screen px-6 py-20"
-        >
-          <div className="max-w-7xl mx-auto">
-            <h3 className="text-4xl font-bold text-center text-white mb-16">
-              {lang === 'zh' ? '專業團隊' : 'Professional Team'}
-            </h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  name: lang === 'zh' ? '陳資深顧問' : 'Dr. Chen, Senior Advisor',
-                  title: lang === 'zh' ? '首席執行官兼管理合夥人' : 'CEO & Managing Partner',
-                  education: lang === 'zh' ? '哈佛大學商學院 工商管理博士' : 'Harvard Business School, DBA',
-                  experience: lang === 'zh' ? '25年企業戰略與管理經驗' : '25 years in corporate strategy & management',
-                  expertise: [lang === 'zh' ? '企業戰略' : 'Corporate Strategy', lang === 'zh' ? '併購重組' : 'M&A Advisory']
-                },
-                {
-                  name: lang === 'zh' ? '李資深律師' : 'Ms. Li, Senior Counsel',
-                  title: lang === 'zh' ? '合夥人律師' : 'Partner Attorney',
-                  education: lang === 'zh' ? '史丹佛法學院 法律博士' : 'Stanford Law School, J.D.',
-                  experience: lang === 'zh' ? '18年商業法律實務經驗' : '18 years in commercial law practice',
-                  expertise: [lang === 'zh' ? '公司法務' : 'Corporate Law', lang === 'zh' ? '合規監管' : 'Regulatory Compliance']
-                },
-                {
-                  name: lang === 'zh' ? '王資深分析師' : 'Mr. Wang, Chief Analyst',
-                  title: lang === 'zh' ? '首席投資分析師' : 'Chief Investment Analyst',
-                  education: lang === 'zh' ? '麻省理工學院 金融工程碩士' : 'MIT, M.S. Financial Engineering',
-                  experience: lang === 'zh' ? '15年投資分析與風險管理' : '15 years in investment analysis & risk management',
-                  expertise: [lang === 'zh' ? '投資策略' : 'Investment Strategy', lang === 'zh' ? '量化分析' : 'Quantitative Analysis']
-                }
-              ].map((member, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8"
-                >
-                  {/* Avatar Placeholder */}
-                  <div className="w-24 h-24 bg-gradient-to-br from-slate-700 to-slate-800 rounded-full mx-auto mb-6 border-2 border-slate-600" />
-                  
-                  <h4 className="text-xl font-bold text-white mb-2 text-center">{member.name}</h4>
-                  <p className="text-slate-400 mb-4 text-center">{member.title}</p>
-                  
-                  <div className="space-y-2 text-sm text-slate-300 mb-6">
-                    <p>{member.education}</p>
-                    <p>{member.experience}</p>
-                  </div>
-                  
-                  <div className="border-t border-slate-700 pt-4">
-                    <p className="text-sm font-medium text-slate-400 mb-3">
-                      {lang === 'zh' ? '專業領域' : 'Expertise'}:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {member.expertise.map((exp, i) => (
-                        <span key={i} className="px-3 py-1 bg-slate-800 text-slate-300 text-xs rounded-full border border-slate-600">
-                          {exp}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Booking Section */}
-      {activeSection === 'booking' && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="min-h-screen px-6 py-20"
-        >
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-4xl font-bold text-center text-white mb-8">
-              {lang === 'zh' ? '預約專業諮詢' : 'Schedule Professional Consultation'}
-            </h3>
-            
-            <div className="bg-slate-900/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-8">
-              {/* Progress Steps */}
-              <div className="flex justify-between mb-8">
-                {[1, 2, 3].map((step) => (
-                  <div key={step} className="flex items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                      bookingStep >= step ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white' : 'bg-slate-700 text-slate-400'
-                    }`}>
-                      {step}
-                    </div>
-                    {step < 3 && (
-                      <div className={`w-16 h-0.5 ml-2 ${
-                        bookingStep >= step ? 'bg-gradient-to-r from-blue-600 to-cyan-600' : 'bg-slate-700'
-                      }`} />
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <AnimatePresence mode="wait">
-                {bookingStep === 0 && (
-                  <motion.div
-                    key="step1"
-                    initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -50 }}
-                    className="space-y-6"
-                  >
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        {lang === 'zh' ? '姓名' : 'Name'}
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        className="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
-                        placeholder={lang === 'zh' ? '請輸入您的姓名' : 'Enter your name'}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        {lang === 'zh' ? '電子郵件' : 'Email'}
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        className="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
-                        placeholder={lang === 'zh' ? '請輸入您的郵箱' : 'Enter your email'}
-                      />
-                    </div>
-                    
-                    <button
-                      onClick={() => setBookingStep(1)}
-                      className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 font-medium"
-                    >
-                      {lang === 'zh' ? '下一步' : 'Next Step'}
-                    </button>
-                  </motion.div>
-                )}
-
-                {bookingStep === 1 && (
-                  <motion.div
-                    key="step2"
-                    initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -50 }}
-                    className="space-y-6"
-                  >
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        {lang === 'zh' ? '選擇服務類型' : 'Select Service Type'}
-                      </label>
-                      <select
-                        value={formData.service}
-                        onChange={(e) => setFormData({...formData, service: e.target.value})}
-                        className="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg text-white focus:border-blue-500 focus:outline-none"
-                      >
-                        <option value="">{lang === 'zh' ? '請選擇服務' : 'Please select service'}</option>
-                        {services.map((service) => (
-                          <option key={service.id} value={service.id}>
-                            {service.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
-                        {lang === 'zh' ? '諮詢內容' : 'Consultation Details'}
-                      </label>
-                      <textarea
-                        value={formData.message}
-                        onChange={(e) => setFormData({...formData, message: e.target.value})}
-                        rows={4}
-                        className="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-blue-500 focus:outline-none"
-                        placeholder={lang === 'zh' ? '請描述您的需求' : 'Describe your requirements'}
-                      />
-                    </div>
-                    
-                    <div className="flex space-x-4">
-                      <button
-                        onClick={() => setBookingStep(0)}
-                        className="flex-1 py-3 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
-                      >
-                        {lang === 'zh' ? '上一步' : 'Previous'}
-                      </button>
-                      <button
-                        onClick={() => setBookingStep(2)}
-                        className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 font-medium"
-                      >
-                        {lang === 'zh' ? '確認預約' : 'Confirm Booking'}
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-
-                {bookingStep === 2 && (
-                  <motion.div
-                    key="step3"
-                    initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -50 }}
-                    className="text-center space-y-6"
-                  >
-                    <div className="w-20 h-20 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-full flex items-center justify-center mx-auto border-4 border-emerald-500/30">
-                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                    
-                    <h4 className="text-2xl font-bold text-white">
-                      {lang === 'zh' ? '諮詢預約確認' : 'Consultation Booking Confirmed'}
-                    </h4>
-                    
-                    <p className="text-slate-300">
-                      {lang === 'zh' 
-                        ? '我們已收到您的諮詢預約申請，專業顧問將在24小時內與您聯繫確認詳情。'
-                        : 'We have received your consultation request, our professional advisor will contact you within 24 hours to confirm details.'
-                      }
-                    </p>
-                    
-                    <button
-                      onClick={() => {
-                        setBookingStep(0);
-                        setFormData({ name: '', email: '', service: '', message: '' });
-                      }}
-                      className="px-8 py-3 bg-gradient-to-r from-slate-700 to-slate-600 text-white rounded-xl hover:from-slate-600 hover:to-slate-500 transition-all duration-300 font-medium"
-                    >
-                      {lang === 'zh' ? '新建預約' : 'New Consultation'}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </div>
   );
 };
 
